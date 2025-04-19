@@ -1,9 +1,4 @@
 ﻿using MyExtensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ValidarCPFeCNPJ;
 
@@ -13,6 +8,9 @@ public record struct CNPJ : IDocumento
 
     private ulong _numero;
 
+    /// <summary>
+    /// Número do CNPJ.
+    /// </summary>
     public ulong Numero
     {
         get => _numero;
@@ -27,11 +25,20 @@ public record struct CNPJ : IDocumento
         }
     }
 
+    /// <summary>
+    /// Construtor que recebe um ulong com o CNPJ.
+    /// </summary>
+    /// <param name="numero"></param>
     public CNPJ(ulong numero)
     {
         Numero = numero;
     }
 
+    /// <summary>
+    /// Construtor que recebe uma string com o CNPJ.
+    /// </summary>
+    /// <param name="numero"></param>
+    /// <exception cref="ArgumentException"></exception>
     public CNPJ(string numero)
     {
         if (!ValidacaoDocumentos.IsCnpjStringRegex(numero))
@@ -49,56 +56,44 @@ public record struct CNPJ : IDocumento
         _numero = _numeroLimpo.ToUlong() ?? 0;
     }
 
+    /// <summary>
+    /// Converte o CNPJ para uma string com o tamanho padrão (14 dígitos).
+    /// </summary>
+    /// <returns></returns>
     public override readonly string ToString()
     {
         return _numero.ToString('0'.Repeat((int)_size));
     }
 
+    /// <summary>
+    /// Converte o CNPJ para uma string com o tamanho especificado.
+    /// </summary>
+    /// <param name="size"></param>
+    /// <returns></returns>
     public readonly string ToString(int size)
     {
         return _numero.ToString('0'.Repeat(size));
     }
 
+    /// <summary>
+    /// Converte o CNPJ para uma string formatada com pontuação.
+    /// </summary>
+    /// <returns></returns>
     public readonly string ToStringFormated()
     {
-        // 00.000.000/0000-00
-        // 012345678901234567
-        // 01 234 567 8901 23
-
         var digitos = _numero.GetDigits((int)_size);
         Span<char> span = stackalloc char[(int)_size + 3];
 
-        for (int i = 0; i <= 1; i++)
+        int digitIndex = 0;
+        for (int i = 0; i < span.Length; i++)
         {
-            span[i] = (char)digitos[i];
-        }
-
-        span[2] = '.';
-
-        for (int i = 2; i <= 4; i++)
-        {
-            span[i + 1] = (char)digitos[i];
-        }
-
-        span[6] = '.';
-
-        for (int i = 5; i <= 7; i++)
-        {
-            span[i + 2] = (char)digitos[i];
-        }
-
-        span[10] = '/';
-
-        for (int i = 8; i <= 11; i++)
-        {
-            span[i + 3] = (char)digitos[i];
-        }
-
-        span[15] = '-';
-
-        for (int i = 12; i <= 13; i++)
-        {
-            span[i + 4] = (char)digitos[i];
+            span[i] = i switch
+            {
+                2 or 6 => '.',
+                10 => '/',
+                15 => '-',
+                _ => (char)(digitos[digitIndex++] + '0')
+            };
         }
 
         return span.ToString();

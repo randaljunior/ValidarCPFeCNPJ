@@ -1,10 +1,9 @@
-﻿namespace ValidarCPFeCNPJ
+﻿namespace ValidarCPFeCNPJ;
+
+public interface IDocumento
 {
-    public interface IDocumento
-    {
-        ulong Numero { get; init; }
-        string ToString();
-        string ToStringFormated();
-        string ToString(int size);
-    }
+    ulong Numero { get; init; }
+    string ToString();
+    string ToStringFormated();
+    string ToString(int size);
 }

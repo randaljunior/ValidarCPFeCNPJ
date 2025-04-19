@@ -8,58 +8,103 @@ public static partial class ValidacaoDocumentos
     private const int _CPFSize = 11;
     private const int _CNPJSize = 14;
 
-    public static bool IsCPF(ulong numero)
+    /// <summary>
+    /// Verifica se um número é um CPF.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public static bool IsCPF(ulong input)
     {
-        return CheckCpfDv(numero.GetDigits());
+        return CheckCpfDv(input.GetDigits());
     }
 
-    public static bool IsCPF(ReadOnlySpan<uint> numero)
+    /// <summary>
+    /// Verifica se um número é um CPF.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public static bool IsCPF(ReadOnlySpan<uint> input)
     {
-        return CheckCpfDv(numero);
+        return CheckCpfDv(input);
     }
 
-    public static bool IsCNPJ(ulong numero)
+    /// <summary>
+    /// Verifica se um número é um CNPJ.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public static bool IsCNPJ(ulong input)
     {
-        return CheckCnpjDv(numero.GetDigits());
+        return CheckCnpjDv(input.GetDigits());
     }
 
-    public static bool IsCNPJ(ReadOnlySpan<uint> numero)
+    /// <summary>
+    /// Verifica se um número é um CNPJ.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public static bool IsCNPJ(ReadOnlySpan<uint> input)
     {
-        return CheckCnpjDv(numero);
+        return CheckCnpjDv(input);
     }
 
     [GeneratedRegex(@"^\d{3}\.\d{3}\.\d{3}\-\d{2}$")]
-    public static partial Regex CpfStringRegex();
+    private static partial Regex CpfStringRegex();
 
+    /// <summary>
+    /// Verifica se uma string com pontuação parece um CPF.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
     public static bool IsCpfStringRegex(ReadOnlySpan<char> input)
     {
         return CpfStringRegex().IsMatch(input);
     }
 
     [GeneratedRegex(@"^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$")]
-    public static partial Regex CnpjStringRegex();
+    private static partial Regex CnpjStringRegex();
 
+    /// <summary>
+    /// Verifica se uma string com pontuação parece um CNPJ.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
     public static bool IsCnpjStringRegex(ReadOnlySpan<char> input)
     {
         return CnpjStringRegex().IsMatch(input);
     }
 
     [GeneratedRegex(@"^[0-9]{11}$")]
-    public static partial Regex CpfRegex();
+    private static partial Regex CpfRegex();
 
+    /// <summary>
+    /// Verifica se uma string sem pontuação parece um CPF.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
     public static bool IsCpfRegex(ReadOnlySpan<char> input)
     {
         return CpfRegex().IsMatch(input);
     }
 
     [GeneratedRegex(@"^[0-9]{14}$")]
-    public static partial Regex CnpjRegex();
+    private static partial Regex CnpjRegex();
 
+    /// <summary>
+    /// Verifica se uma string sem pontuação parece um CNPJ.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
     public static bool IsCnpjRegex(ReadOnlySpan<char> input)
     {
         return CnpjRegex().IsMatch(input);
     }
 
+    /// <summary>
+    /// Verifica se um CPF é válido.
+    /// </summary>
+    /// <param name="cpf"></param>
+    /// <returns></returns>
     public static bool CheckCpfDv(ReadOnlySpan<char> cpf)
     {
         if (cpf.Length != _CPFSize || !CpfRegex().IsMatch(cpf)) return false;
@@ -68,12 +113,17 @@ public static partial class ValidacaoDocumentos
 
         for (int i = 0; i < _cpf.Length; i++)
         {
-            int.TryParse(cpf.Slice(i, 1), out _cpf[i]);
+            _cpf[i] = cpf[i] - '0';
         }
 
         return CheckCpfDv(_cpf);
     }
 
+    /// <summary>
+    /// Verifica se um CPF é válido.
+    /// </summary>
+    /// <param name="cpf"></param>
+    /// <returns></returns>
     public static bool CheckCpfDv(ReadOnlySpan<uint> cpf)
     {
         if (cpf.Length != _CPFSize) return false;
@@ -87,6 +137,11 @@ public static partial class ValidacaoDocumentos
         return true;
     }
 
+    /// <summary>
+    /// Verifica se um CPF é válido.
+    /// </summary>
+    /// <param name="cpf"></param>
+    /// <returns></returns>
     public static bool CheckCpfDv(ReadOnlySpan<int> cpf)
     {
         Span<uint> _cpf = stackalloc uint[_CPFSize];
@@ -99,6 +154,11 @@ public static partial class ValidacaoDocumentos
         return CheckCnpjDv(_cpf);
     }
 
+    /// <summary>
+    /// Obtem os dígitos verificadores de um CPF.
+    /// </summary>
+    /// <param name="RaizCpf">CPF sem os Dígitos Verificadores</param>
+    /// <returns></returns>
     public static (uint DV1, uint DV2) GetCpfDv(ReadOnlySpan<uint> RaizCpf)
     {
         if (RaizCpf.Length != _CPFSize - 2) throw new ArgumentException($"Raiz do CPF deve possuir {_CPFSize - 2} digitos.");
@@ -136,6 +196,11 @@ public static partial class ValidacaoDocumentos
         return (_dv1result, _dv2result);
     }
 
+    /// <summary>
+    /// Verifica se um CNPJ é válido.
+    /// </summary>
+    /// <param name="cnpj"></param>
+    /// <returns></returns>
     public static bool CheckCnpjDv(ReadOnlySpan<char> cnpj)
     {
         if (cnpj.Length != _CNPJSize || !CnpjRegex().IsMatch(cnpj)) return false;
@@ -144,12 +209,17 @@ public static partial class ValidacaoDocumentos
 
         for (int i = 0; i < _cnpj.Length; i++)
         {
-            int.TryParse(cnpj.Slice(i, 1), out _cnpj[i]);
+            _cnpj[i] = cnpj[i] - '0';
         }
 
         return CheckCnpjDv(_cnpj);
     }
 
+    /// <summary>
+    /// Verifica se um CNPJ é válido.
+    /// </summary>
+    /// <param name="cnpj"></param>
+    /// <returns></re
     public static bool CheckCnpjDv(ReadOnlySpan<int> cnpj)
     {
         Span<uint> _cnpj = stackalloc uint[_CNPJSize];
@@ -162,6 +232,11 @@ public static partial class ValidacaoDocumentos
         return CheckCnpjDv(_cnpj);
     }
 
+    /// <summary>
+    /// Verifica se um CNPJ é válido.
+    /// </summary>
+    /// <param name="cnpj"></param>
+    /// <returns></re
     public static bool CheckCnpjDv(ReadOnlySpan<uint> cnpj)
     {
         if (cnpj.Length != _CNPJSize) return false;

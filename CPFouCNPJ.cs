@@ -1,67 +1,108 @@
 ﻿
+using System.Drawing;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 namespace ValidarCPFeCNPJ;
 
 public class CPFouCNPJ
 {
-    private object? _valor;
+    private IDocumento? _valor;
 
     private CPFouCNPJ() { }
 
+    /// <summary>
+    /// Construtor que recebe um CPF.
+    /// </summary>
+    /// <param name="cpf"></param>
     public CPFouCNPJ(CPF cpf)
     {
         _valor = cpf;
     }
 
-    public CPFouCNPJ(CNPJ cpf)
+    /// <summary>
+    /// Construtor que recebe um CNPJ.
+    /// </summary>
+    /// <param name="cnpj"></param>
+    public CPFouCNPJ(CNPJ cnpj)
     {
-        _valor = cpf;
+        _valor = cnpj;
     }
 
-    public ulong Valor => ((IDocumento?)_valor)?.Numero ?? 0;
+    /// <summary>
+    /// Número do CPF ou CNPJ.
+    /// </summary>
+    public ulong Valor => _valor?.Numero ?? 0;
 
-    public new Type? GetType()
-    {
-        return _valor?.GetType();
-    }
+    /// <summary>
+    /// Retorna o tipo do documento (CPF ou CNPJ).
+    /// </summary>
+    public Type? TipoDocumento => _valor?.GetType();
 
+    /// <summary>
+    /// Cria um CPFouCNPJ a partir de um CPF.
+    /// </summary>
+    /// <param name="cpf"></param>
+    /// <returns></returns>
     public static CPFouCNPJ Create(CPF cpf)
     {
         return new CPFouCNPJ { _valor = cpf };
     }
 
+    /// <summary>
+    /// Cria um CPFouCNPJ a partir de um CNPJ.
+    /// </summary>
+    /// <param name="cnpj"></param>
+    /// <returns></returns>
     public static CPFouCNPJ Create(CNPJ cnpj)
     {
         return new CPFouCNPJ { _valor = cnpj };
     }
 
-    public static CPFouCNPJ Create(ulong Numero)
+    /// <summary>
+    /// Cria um CPFouCNPJ a partir de uma numero de CPF ou CNPJ.
+    /// </summary>
+    /// <param name="numero"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public static CPFouCNPJ Create(ulong numero)
     {
-        if (ValidacaoDocumentos.IsCPF(Numero))
+        if (ValidacaoDocumentos.IsCPF(numero))
         {
-            return new CPFouCNPJ { _valor = new CPF(Numero) };
+            return new CPFouCNPJ { _valor = new CPF(numero) };
         }
-        else if (ValidacaoDocumentos.IsCNPJ(Numero))
+        else if (ValidacaoDocumentos.IsCNPJ(numero))
         {
-            return new CPFouCNPJ { _valor = new CNPJ(Numero) };
+            return new CPFouCNPJ { _valor = new CNPJ(numero) };
         }
         else
         {
-            throw new ArgumentException("CPF ou CNPJ inválido");
+            throw new ArgumentException("CPF ou CNPJ inválido", nameof(numero));
         }
     }
 
-    public string ToString(int size) => ((IDocumento?)_valor)?.ToString(size) ?? string.Empty;
+    /// <summary>
+    /// Retorna uma string com o CPF ou CNPJ em um tamanho específico.
+    /// </summary>
+    /// <param name="size"></param>
+    /// <returns></returns>
+    public string ToString(int size) => _valor?.ToString(size) ?? string.Empty;
 
-    public override string ToString()
-    {
-        return ToString(1);
-    }
+    /// <summary>
+    /// Retorna uma string com o CPF ou CNPJ em um tamanho padrão (11 ou 14 dígitos).
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString() => _valor?.ToString() ?? string.Empty;
 
-    public string ToStringFormated() => ((IDocumento?)_valor)?.ToStringFormated() ?? string.Empty;
+    /// <summary>
+    /// Retorna uma string com o CPF ou CNPJ formatado.
+    /// </summary>
+    /// <returns></returns>
+    public string ToStringFormated() => _valor?.ToStringFormated() ?? string.Empty;
 
     public override bool Equals(object? obj)
     {
-        if (obj is not CPF || obj is not CNPJ) return false;
+        if (!(obj is CPF || obj is CNPJ))
+            return false;
 
         if (obj is CNPJ _cnpj && _valor is CNPJ _cnpjInterno)
         {
@@ -77,16 +118,14 @@ public class CPFouCNPJ
 
     public static bool operator ==(CPFouCNPJ a, CPFouCNPJ b)
     {
-        if (a is null && b is null) return true;
+        if (ReferenceEquals(a, b)) return true;
         if (a is null || b is null) return false;
         return a.Equals(b);
     }
 
     public static bool operator !=(CPFouCNPJ a, CPFouCNPJ b)
     {
-        if (a is null && b is null) return false;
-        if (a is null || b is null) return true;
-        return !a.Equals(b);
+        return !(a == b);
     }
 
     public override int GetHashCode()

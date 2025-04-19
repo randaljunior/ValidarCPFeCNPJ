@@ -8,6 +8,9 @@ public record struct CPF : IDocumento
 
     private ulong _numero;
 
+    /// <summary>
+    /// Número do CPF.
+    /// </summary>
     public ulong Numero
     {
         get => _numero;
@@ -22,14 +25,23 @@ public record struct CPF : IDocumento
         }
     }
 
+    /// <summary>
+    /// Construtor que recebe um ulong com o CPF.
+    /// </summary>
+    /// <param name="numero"></param>
     public CPF(ulong numero)
     {
         Numero = numero;
     }
 
+    /// <summary>
+    /// Construtor que recebe uma string com o CPF.
+    /// </summary>
+    /// <param name="numero"></param>
+    /// <exception cref="ArgumentException"></exception>
     public CPF(string numero)
     {
-        if(!ValidacaoDocumentos.IsCpfStringRegex(numero))
+        if (!ValidacaoDocumentos.IsCpfStringRegex(numero))
         {
             throw new ArgumentException("CPF inválido");
         }
@@ -44,49 +56,43 @@ public record struct CPF : IDocumento
         _numero = _numeroLimpo.ToUlong() ?? 0;
     }
 
+    /// <summary>
+    /// Converte o CPF para uma string com o tamanho padrão (11 dígitos).
+    /// </summary>
+    /// <returns></returns>
     public override readonly string ToString()
     {
         return _numero.ToString('0'.Repeat((int)_size));
     }
 
+    /// <summary>
+    /// Converte o CPF para uma string com o tamanho especificado.
+    /// </summary>
+    /// <param name="size"></param>
+    /// <returns></returns>
     public readonly string ToString(int size)
     {
         return _numero.ToString('0'.Repeat(size));
     }
 
+    /// <summary>
+    /// Converte o CPF para uma string formatada.
+    /// </summary>
+    /// <returns></returns>
     public readonly string ToStringFormated()
     {
-        // 000.000.000-00
-        // 01234567890123
-        // 012 345 678 90
-
         var digitos = _numero.GetDigits((int)_size);
         Span<char> span = stackalloc char[(int)_size + 3];
-
-        for (int i = 0; i <= 2; i++)
+        
+        int digitIndex = 0;
+        for (int i = 0; i < span.Length; i++)
         {
-            span[i] = (char)digitos[i];
-        }
-
-        span[3] = '.';
-
-        for (int i = 3; i <= 5; i++)
-        {
-            span[i + 1] = (char)digitos[i];
-        }
-
-        span[7] = '.';
-
-        for (int i = 6; i <= 8; i++)
-        {
-            span[i + 2] = (char)digitos[i];
-        }
-
-        span[11] = '-';
-
-        for (int i = 9; i <= 10; i++)
-        {
-            span[i + 3] = (char)digitos[i];
+            span[i] = i switch
+            {
+                3 or 7 => '.',
+                11 => '-',
+                _ => (char)(digitos[digitIndex++] + '0')
+            };
         }
 
         return span.ToString();
