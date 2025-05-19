@@ -1,6 +1,4 @@
-﻿
-using System.Drawing;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using MyExtensions;
 
 namespace ValidarCPFeCNPJ;
 
@@ -34,29 +32,19 @@ public class CPFouCNPJ
     public ulong Valor => _valor?.Numero ?? 0;
 
     /// <summary>
+    /// Retorna verdadeiro se o valor armazeando é um CPF.
+    /// </summary>
+    public bool IsCPF => _valor is CPF;
+
+    /// <summary>
+    /// Retorna verdadeiro se o valor armazeando é um CNPJ.
+    /// </summary>
+    public bool IsCNPJ => _valor is CNPJ;
+
+    /// <summary>
     /// Retorna o tipo do documento (CPF ou CNPJ).
     /// </summary>
     public Type? TipoDocumento => _valor?.GetType();
-
-    /// <summary>
-    /// Cria um CPFouCNPJ a partir de um CPF.
-    /// </summary>
-    /// <param name="cpf"></param>
-    /// <returns></returns>
-    public static CPFouCNPJ Create(CPF cpf)
-    {
-        return new CPFouCNPJ { _valor = cpf };
-    }
-
-    /// <summary>
-    /// Cria um CPFouCNPJ a partir de um CNPJ.
-    /// </summary>
-    /// <param name="cnpj"></param>
-    /// <returns></returns>
-    public static CPFouCNPJ Create(CNPJ cnpj)
-    {
-        return new CPFouCNPJ { _valor = cnpj };
-    }
 
     /// <summary>
     /// Cria um CPFouCNPJ a partir de uma numero de CPF ou CNPJ.
@@ -71,6 +59,28 @@ public class CPFouCNPJ
             return new CPFouCNPJ { _valor = new CPF(numero) };
         }
         else if (ValidacaoDocumentos.IsCNPJ(numero))
+        {
+            return new CPFouCNPJ { _valor = new CNPJ(numero) };
+        }
+        else
+        {
+            throw new ArgumentException("CPF ou CNPJ inválido", nameof(numero));
+        }
+    }
+
+    /// <summary>
+    /// Cria um CPFouCNPJ a partir de uma numero de CPF ou CNPJ.
+    /// </summary>
+    /// <param name="numero"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public static CPFouCNPJ Create(string numero)
+    {
+        if (ValidacaoDocumentos.IsCPF(numero.GetDigits()))
+        {
+            return new CPFouCNPJ { _valor = new CPF(numero) };
+        }
+        else if (ValidacaoDocumentos.IsCNPJ(numero.GetDigits()))
         {
             return new CPFouCNPJ { _valor = new CNPJ(numero) };
         }
@@ -98,6 +108,10 @@ public class CPFouCNPJ
     /// </summary>
     /// <returns></returns>
     public string ToStringFormated() => _valor?.ToStringFormated() ?? string.Empty;
+
+    public static implicit operator CPFouCNPJ(ulong numero) => CPFouCNPJ.Create(numero);
+
+    public static implicit operator CPFouCNPJ(string numero) => CPFouCNPJ.Create(numero);
 
     public override bool Equals(object? obj)
     {
