@@ -54,11 +54,11 @@ public class CPFouCNPJ
     /// <exception cref="ArgumentException"></exception>
     public static CPFouCNPJ Create(ulong numero)
     {
-        if (ValidacaoDocumentos.IsCPF(numero))
+        if (ValidaCPF.IsCPF(numero))
         {
             return new CPFouCNPJ { _valor = new CPF(numero) };
         }
-        else if (ValidacaoDocumentos.IsCNPJ(numero))
+        else if (ValidaCNPJ.IsCNPJ(numero))
         {
             return new CPFouCNPJ { _valor = new CNPJ(numero) };
         }
@@ -76,11 +76,11 @@ public class CPFouCNPJ
     /// <exception cref="ArgumentException"></exception>
     public static CPFouCNPJ Create(string numero)
     {
-        if (ValidacaoDocumentos.IsCPF(numero.GetDigits()))
+        if (ValidaCPF.IsCPF(numero.GetDigits()))
         {
             return new CPFouCNPJ { _valor = new CPF(numero) };
         }
-        else if (ValidacaoDocumentos.IsCNPJ(numero.GetDigits()))
+        else if (ValidaCNPJ.IsCNPJ(numero.GetDigits()))
         {
             return new CPFouCNPJ { _valor = new CNPJ(numero) };
         }

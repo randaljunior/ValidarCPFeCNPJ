@@ -16,7 +16,7 @@ public record struct CPF : IDocumento
         get => _numero;
         init
         {
-            if (ValidacaoDocumentos.IsCPF(value))
+            if (ValidaCPF.IsCPF(value))
             {
                 throw new ArgumentException("CPF inválido");
             }
@@ -41,14 +41,14 @@ public record struct CPF : IDocumento
     /// <exception cref="ArgumentException"></exception>
     public CPF(string numero)
     {
-        if (!ValidacaoDocumentos.IsCpfStringRegex(numero))
+        if (!ValidaCPF.IsCpfStringRegex(numero))
         {
             throw new ArgumentException("CPF inválido");
         }
 
         var _numeroLimpo = numero.GetDigits();
 
-        if (!ValidacaoDocumentos.IsCPF(_numeroLimpo))
+        if (!ValidaCPF.IsCPF(_numeroLimpo))
         {
             throw new ArgumentException("CPF inválido");
         }
