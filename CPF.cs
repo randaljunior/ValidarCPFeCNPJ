@@ -41,7 +41,7 @@ public record struct CPF : IDocumento
     /// <exception cref="ArgumentException"></exception>
     public CPF(string numero)
     {
-        if (!ValidaCPF.IsCpfStringRegex(numero))
+        if (!ValidaCPF.IsCpfStringRegex(numero) && !ValidaCPF.IsCpfRegex(numero))
         {
             throw new ArgumentException("CPF inválido");
         }

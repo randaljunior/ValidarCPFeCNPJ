@@ -41,16 +41,16 @@ public record struct CNPJ : IDocumento
     /// <exception cref="ArgumentException"></exception>
     public CNPJ(string numero)
     {
-        if (!ValidaCNPJ.IsCnpjStringRegex(numero))
+        if (!ValidaCNPJ.IsCnpjStringRegex(numero) && !ValidaCNPJ.IsCnpjRegex(numero))
         {
-            throw new ArgumentException("CPF inválido");
+            throw new ArgumentException("CNPJ inválido");
         }
 
         var _numeroLimpo = numero.GetDigits();
 
         if (!ValidaCNPJ.IsCNPJ(_numeroLimpo))
         {
-            throw new ArgumentException("CPF inválido");
+            throw new ArgumentException("CNPJ inválido");
         }
 
         _numero = _numeroLimpo.ToUlong() ?? 0;
